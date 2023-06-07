@@ -10,17 +10,18 @@
 
 void init_hash(valp_hash *hash) {
   hash->count = 0;
-  hash->capacity = 0;
+  hash->capacity = -1;
   hash->entries = NULL;
 }
 
 void free_hash(valp_hash *hash) {
-  FREE_ARRAY(valp_entry, hash->entries, hash->capacity);
+  FREE_ARRAY(valp_entry, hash->entries, hash->capacity + 1);
   init_hash(hash);
 }
 
 static valp_entry *find_entry(valp_entry *entries, int capacity, valp_string *key) {
-  uint32_t index = key->hash % capacity;
+  uint32_t index = key->hash & capacity;
+
   valp_entry *tombstone = NULL;
   for (;;) {
     valp_entry *entry = &entries[index];
@@ -38,7 +39,7 @@ static valp_entry *find_entry(valp_entry *entries, int capacity, valp_string *ke
       return entry;
     }
 
-    index = (index + 1) % capacity;
+    index = (index + 1) & capacity;
   }
 }
 
@@ -53,14 +54,14 @@ bool hash_get(valp_hash *hash, valp_string *key, valp_value *value) {
 }
 
 static void adjust_capacity(valp_hash *hash, int capacity) {
-  valp_entry *entries = ALLOCATE(valp_entry, capacity);
+  valp_entry *entries = ALLOCATE(valp_entry, capacity + 1);
   hash->count = 0;
-  for (int i = 0; i < capacity; i++) {
+  for (int i = 0; i <= capacity; i++) {
     entries[i].key = NULL;
     entries[i].value = NIL_VAL;
   }
 
-  for (int i = 0; i < hash->capacity; i++) {
+  for (int i = 0; i <= hash->capacity; i++) {
     valp_entry *entry = &hash->entries[i];
     if (entry->key == NULL) continue;
 
@@ -70,14 +71,14 @@ static void adjust_capacity(valp_hash *hash, int capacity) {
     hash->count++;
   }
 
-  FREE_ARRAY(valp_entry, hash->entries, hash->capacity);
+  FREE_ARRAY(valp_entry, hash->entries, hash->capacity + 1);
   hash->entries = entries;
   hash->capacity = capacity;
 }
 
 bool hash_set(valp_hash *hash, valp_string *key, valp_value value) {
-  if (hash->count + 1 > hash->capacity * HASH_MAX_LOAD) {
-    int capacity = GROW_CAPACITY(hash->capacity);
+  if (hash->count + 1 > (hash->capacity + 1) * HASH_MAX_LOAD) {
+    int capacity = GROW_CAPACITY(hash->capacity + 1) - 1;
     adjust_capacity(hash, capacity);
   }
 
@@ -106,7 +107,7 @@ bool hash_delete(valp_hash *hash, valp_string *key) {
 }
 
 void hash_add_all(valp_hash *from, valp_hash *to) {
-  for (int i = 0; i < from->capacity; i++) {
+  for (int i = 0; i <= from->capacity; i++) {
     valp_entry *entry = &from->entries[i];
     if (entry->key != NULL) {
       hash_set(to, entry->key, entry->value);
@@ -117,7 +118,7 @@ void hash_add_all(valp_hash *from, valp_hash *to) {
 valp_string *hash_find_string(valp_hash *hash, const char *chars, int length, uint32_t string_hash) {
   if (hash->count == 0) return NULL;
 
-  uint32_t index = string_hash % hash->capacity;
+  uint32_t index = string_hash & hash->capacity;
 
   for (;;) {
     valp_entry *entry = &hash->entries[index];
@@ -130,12 +131,12 @@ valp_string *hash_find_string(valp_hash *hash, const char *chars, int length, ui
       return entry->key;    
     }
 
-    index = (index + 1) % hash->capacity;
+    index = (index + 1) & hash->capacity;
   }
 }
 
 void hash_remove_white(valp_hash *hash) {
-  for (int i = 0; i < hash->capacity; i++) {
+  for (int i = 0; i <= hash->capacity; i++) {
     valp_entry *entry = &hash->entries[i];
 
     if (entry->key != NULL && !entry->key->obj.is_marked) {
@@ -145,7 +146,7 @@ void hash_remove_white(valp_hash *hash) {
 }
 
 void mark_hash(valp_hash *hash) {
-  for (int i = 0; i < hash->capacity; i++) {
+  for (int i = 0; i <= hash->capacity; i++) {
     valp_entry *entry = &hash->entries[i];
     mark_object((valp_obj*)entry->key);
     mark_value(entry->value);
