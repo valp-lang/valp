@@ -11,6 +11,6 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@v2
       - name: Compile the project
-        run: make clean && make
+        run: make
       - name: Runt tests
         run: make test
