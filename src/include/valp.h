@@ -5,14 +5,15 @@
 #include <stddef.h>
 #include <stdint.h>
 
-//#define DEBUG_PRINT_CODE
+// use -D [name] to defines a macro
 
-//#define DEBUG_TRACE_EXECUTION
+// DEBUG_PRINT_CODE
+// DEBUG_TRACE_EXECUTION
 
-// #define DEBUG_STRESS_GC
-// #define DEBUG_LOG_GC
+// DEBUG_STRESS_GC
+// DEBUG_LOG_GC
 
-#define NAN_BOXING
+// NAN_BOXING - not wroking yet xD
 
 #define UINT8_COUNT (UINT8_MAX + 1)
 
