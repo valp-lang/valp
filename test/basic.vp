@@ -1,0 +1,81 @@
+// Basic syntax tests
+
+class TestClass1 {
+  init(field1, field2) {
+    this.field1 = field1;
+    this.field2 = field2;
+  }
+
+  // Operators
+  operators() {
+    var sum = 1 + 1 = 2;
+    var diff = 2 - 1 = 1;
+    var div = 2 / 2 = 0;
+    var mult = 2 * 2 = 4;
+    var eq = 2 == 2;
+    var lt = 2 < 3;
+    var gt = 3 > 2;
+    var get = 3 >= 2;
+    var let = 2 <= 3;
+    var neq = 2 != 20;
+  }
+
+  // Variables
+  variables_declaration() {
+    var normal;
+    var camelCase;
+    var PascalCase;
+    var ALL_CAPS;
+    var f1irst_letter;
+  }
+
+  // Methods
+  method_with_arguments(first, second) {
+    _first = first;
+    _second = second;
+  }
+
+  method_without_arguments() {
+    var x = 10;
+  }
+}
+
+class InheritanceExample < TestClass1 {
+  init(field1, field2, field3) {
+    this.field1 = field1;
+    this.field2 = field2;
+    this.field3 = field3;
+  }
+
+  loops() {
+    for (var i = 0; i <= 10; i = i + 1) {}
+
+    var w = 10;
+    while (w != 0) {
+      if (w == 5) {
+        return;
+      } else {
+        w = w - 1;
+      }
+    }
+
+    // early return.
+
+    return;
+    print "not reached";
+  }
+}
+
+fun some_function(arg) {
+  var x = arg;
+}
+
+var t1 = TestClass1("f1", "f2");
+
+t1.operators();
+t.variables_declaration();
+
+
+var t2 = InheritanceExample("f1", "f2", "f3");
+
+t2.loops();

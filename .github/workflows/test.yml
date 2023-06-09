@@ -1,0 +1,16 @@
+name: test
+on: [push, pull_request]
+jobs:
+  posix:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    name: "Build and test on Linux/Mac"
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v2
+      - name: Compile the project
+        uses: make clean && make
+      - name: Runt tests
+        run: make test
