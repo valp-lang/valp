@@ -12,7 +12,7 @@ clean:
 	rm $(TARGET)
 
 test: $(TARGET)
-	for t in test/*.vp; do $(RUN) ./$(TARGET) "$$t" || exit; done
+	for t in test/*.vp; do $(RUN) ./$(TARGET) "$$t"; done
 
 help:
 	@echo
