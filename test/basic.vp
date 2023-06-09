@@ -27,12 +27,13 @@ class TestClass1 {
     var PascalCase;
     var ALL_CAPS;
     var f1irst_letter;
+    var _underscore;
   }
 
   // Methods
   method_with_arguments(first, second) {
-    _first = first;
-    _second = second;
+    var _first = first;
+    var _second = second;
   }
 
   method_without_arguments() {
@@ -70,12 +71,13 @@ fun some_function(arg) {
   var x = arg;
 }
 
+some_function("asd");
+
 var t1 = TestClass1("f1", "f2");
-
 t1.operators();
-t.variables_declaration();
-
+t1.variables_declaration();
+t1.method_with_arguments("arg", "arg");
+t1.method_without_arguments();
 
 var t2 = InheritanceExample("f1", "f2", "f3");
-
 t2.loops();
