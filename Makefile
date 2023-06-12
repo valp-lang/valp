@@ -1,9 +1,10 @@
 CC = gcc
 SRC = src/core/*.c
 TARGET = valp
+LIBS = -ledit
 
 all:
-	$(CC) $(SRC) -o $(TARGET)
+	$(CC) $(SRC) $(LIBS) -o $(TARGET)
 
 repl:
 	$(RUN) ./$(TARGET)

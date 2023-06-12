@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <editline/readline.h>
 
 #include "../include/valp.h"
 #include "valp_bytecode.h"
@@ -8,16 +9,19 @@
 #include "valp_vm.h"
 
 static void repl() {
-  char line[1024];
   for (;;) {
-    printf("> ");
+    char *input = readline("valp> ");
 
-    if (!fgets(line, sizeof(line), stdin)) {
+    if (!input) {
       printf("/n");
       break;
     }
+    
+    add_history(input);
 
-    interpret(line);
+    interpret(input);
+
+    free(input);
   }
 }
 
