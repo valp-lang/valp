@@ -1,10 +1,11 @@
 CC = gcc
+CFLAGS = -std=c99 -Wall
 SRC = src/core/*.c
 TARGET = valp
 LIBS = -ledit
 
 all:
-	$(CC) $(SRC) $(LIBS) -o $(TARGET)
+	$(CC) $(CFLAGS) $(SRC) $(LIBS) -o $(TARGET)
 
 repl:
 	$(RUN) ./$(TARGET)

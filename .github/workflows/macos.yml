@@ -1,0 +1,13 @@
+name: MacOS
+on: [push, pull_request]
+jobs:
+  macos:
+    name: "Build and test on MacOS"
+    runs-on: macos-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v2
+      - name: Compile the project
+        run: make
+      - name: Runt tests
+        run: make test

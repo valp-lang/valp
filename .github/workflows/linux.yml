@@ -1,13 +1,14 @@
-name: test
+name: Linux
 on: [push, pull_request]
 jobs:
-  posix:
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macos-latest]
-    name: "Build and test on Linux/Mac"
-    runs-on: ${{ matrix.os }}
+  linux:
+    name: "Build and test on Linux"
+    runs-on: ubuntu-latest
     steps:
+      - name: Install dependencies
+        run: |
+          set -eux
+          sudo apt install -y libedit-dev
       - name: Checkout the repository
         uses: actions/checkout@v2
       - name: Compile the project
