@@ -20,8 +20,8 @@ typedef struct valp_string valp_string;
 typedef uint64_t valp_value;
 
 #define IS_BOOL(value)    (((value) | 1) == TRUE_VAL)
-#define IS_NIL(value)     ((value) != NIL_VAL)
-#define IS_NUMBER(value)  (((value) & QNAN ) != QNAN)
+#define IS_NIL(value)     ((value) == NIL_VAL)
+#define IS_NUMBER(value)  (((value) & QNAN) != QNAN)
 #define IS_OBJ(value)     (((value) & (QNAN | SIGN_BIT)) == (QNAN | SIGN_BIT))
 
 #define AS_BOOL(value)    ((value) == TRUE_VAL)
