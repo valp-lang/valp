@@ -768,7 +768,9 @@ static void var_declaration() {
 static void expression_statement() {
   expression();
   consume(TOKEN_SEMICOLON, "Expect ';' after expression.");
-  emit_byte(OP_POP);
+
+  // DONT POP IF NEEDED FOR TERNARY OPERATOR
+  if (!check(TOKEN_QUESTION_MARK)) { emit_byte(OP_POP); }
 }
 
 static void for_statement() {
@@ -824,6 +826,20 @@ static void for_statement() {
   }
 
   end_scope();
+}
+
+static void ternarty_statement() {
+  int then_jump = emit_jump(OP_JUMP_IF_FALSE);
+  statement();
+
+  int else_jump = emit_jump(OP_JUMP);
+  patch_jump(then_jump);
+  emit_byte(OP_POP);
+  
+  consume(TOKEN_COLON, "Expected ':' after statement in ternary operator.");
+  statement();
+
+  patch_jump(else_jump);
 }
 
 static void if_statement() {
@@ -943,6 +959,8 @@ static void statement() {
     begin_scope();
     block();
     end_scope();
+  } else if (match(TOKEN_QUESTION_MARK)) {
+    ternarty_statement();
   } else {
     expression_statement();
   }
