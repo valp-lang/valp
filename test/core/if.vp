@@ -1,0 +1,20 @@
+// WITH BRACKETS
+var x = 10;
+if (x == 10) {
+}
+
+x = 9;
+if (x != 10) {
+} else {
+}
+
+// WITHOUT BRACKETS
+var x = 10;
+if x == 10 {
+}
+
+x = 9;
+if x != 10 {
+} else {
+}
+

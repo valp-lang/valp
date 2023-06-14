@@ -221,7 +221,7 @@ static void init_compiler(valp_compiler *compiler, valp_function_type type) {
   local->is_captured = false;
 
   if (type != TYPE_FUNCTION) {
-    local->name.start = "this";
+    local->name.start = "self";
     local->name.length = 4;
   } else {
     local->name.start = "";
@@ -475,7 +475,7 @@ static void super_(bool can_assign) {
   consume(TOKEN_IDENTIFIER, "Expect superclass method name.");
   uint8_t name = identifier_constant(&parser.previous);
 
-  named_variable(synthetic_token("this"), false);
+  named_variable(synthetic_token("self"), false);
   if (match(TOKEN_LEFT_PAREN)) {
     uint8_t arg_count = argument_list();
     named_variable(synthetic_token("super"), false);
@@ -487,9 +487,9 @@ static void super_(bool can_assign) {
   }
 }
 
-static void this_(bool can_assign) {
+static void self_(bool can_assign) {
   if (current_class == NULL) {
-    error("Can't user 'this' outside of a class.");
+    error("Can't user 'self' outside of a class.");
     return;
   }
 
@@ -544,7 +544,7 @@ valp_parse_rule rules[] = {
     [TOKEN_PRINT] =         {NULL,     NULL,   PREC_NONE},
     [TOKEN_RETURN] =        {NULL,     NULL,   PREC_NONE},
     [TOKEN_SUPER] =         {super_,   NULL,   PREC_NONE},
-    [TOKEN_THIS] =          {this_,    NULL,   PREC_NONE},
+    [TOKEN_SELF] =          {self_,    NULL,   PREC_NONE},
     [TOKEN_TRUE] =          {literal,  NULL,   PREC_NONE},
     [TOKEN_VAR] =           {NULL,     NULL,   PREC_NONE},
     [TOKEN_WHILE] =         {NULL,     NULL,   PREC_NONE},
@@ -602,9 +602,7 @@ static void declare_variable() {
       break;
     }
 
-    if (identifiers_equal(name, &local->name)) {
-      error("Already variable with this name in this scope.");
-    }
+    if (identifiers_equal(name, &local->name)) { error("Already variable with this name in this scope."); }
   }
 
   add_local(*name);
@@ -648,6 +646,7 @@ static void block() {
 
   consume(TOKEN_RIGHT_BRACE, "Expect '}' after block.");
 }
+
 static void function(valp_function_type type) {
   valp_compiler compiler;
   init_compiler(&compiler, type);
@@ -685,6 +684,7 @@ static void function(valp_function_type type) {
 }
 
 static void method() {
+  consume(TOKEN_DEF, "Expect 'def' before method name.");
   consume(TOKEN_IDENTIFIER, "Expect method name.");
   uint8_t constant = identifier_constant(&parser.previous);
 
@@ -773,9 +773,13 @@ static void expression_statement() {
 
 static void for_statement() {
   begin_scope();
+  bool params = false;
 
-  consume(TOKEN_LEFT_PAREN, "Expect '(' after 'for'.");
-
+  if (check(TOKEN_LEFT_PAREN)) {
+    consume(TOKEN_LEFT_PAREN, "Expect '(' after 'for'.");
+    params = true;
+  }
+  
   if (match(TOKEN_SEMICOLON)) {
     // on initializer.
   } else if (match(TOKEN_VAR)) {
@@ -802,7 +806,8 @@ static void for_statement() {
     int increment_start = current_bytecode()->count;
     expression();
     emit_byte(OP_POP);
-    consume(TOKEN_RIGHT_PAREN, "Expect ')' after for clauses.");
+
+    if (params) { consume(TOKEN_RIGHT_PAREN, "Expect ')' after for clauses."); }
 
     emit_loop(loop_start);
     loop_start = increment_start;
@@ -822,9 +827,13 @@ static void for_statement() {
 }
 
 static void if_statement() {
-  consume(TOKEN_LEFT_PAREN, "Expected '(' after 'if'.");
-  expression();
-  consume(TOKEN_RIGHT_PAREN, "Exprected ')' after condition.");
+  if (check(TOKEN_LEFT_PAREN)) {
+    consume(TOKEN_LEFT_PAREN, "Expected '(' after 'if'");
+    expression();
+    consume(TOKEN_RIGHT_PAREN, "Expected '(' after confition");
+  } else {
+    expression();
+  }
 
   int then_jump = emit_jump(OP_JUMP_IF_FALSE);
   emit_byte(OP_POP);
@@ -862,9 +871,13 @@ static void return_statement() {
 static void while_statement() {
   int loop_start = current_bytecode()->count;
 
-  consume(TOKEN_LEFT_PAREN, "Expect '(' after 'while'.");
-  expression();
-  consume(TOKEN_RIGHT_PAREN, "Expect ')' after condition.");
+  if (check(TOKEN_LEFT_PAREN)) {
+    consume(TOKEN_LEFT_PAREN, "Expect '(' after 'while'.");
+    expression();
+    consume(TOKEN_RIGHT_PAREN, "Expect ')' after condition.");
+  } else {
+    expression();
+  }
 
   int exit_jump = emit_jump(OP_JUMP_IF_FALSE);
 
