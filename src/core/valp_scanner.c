@@ -198,6 +198,8 @@ valp_token scan_token() {
     case '+': return make_token(TOKEN_PLUS);
     case '/': return make_token(TOKEN_SLASH);
     case '*': return make_token(TOKEN_STAR);
+    case '?': return make_token(TOKEN_QUESTION_MARK);
+    case ':': return make_token(TOKEN_COLON);
     case '!': return make_token(match('=') ? TOKEN_BANG_EQUAL : TOKEN_BANG);
     case '=': return make_token(match('=') ? TOKEN_EQUAL_EQUAL : TOKEN_EQUAL);
     case '<': return make_token(match('=') ? TOKEN_LESS_EQUAL : TOKEN_LESS);
