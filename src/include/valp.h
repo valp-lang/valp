@@ -13,7 +13,7 @@
 // DEBUG_STRESS_GC
 // DEBUG_LOG_GC
 
-// NAN_BOXING - not wroking yet xD
+// NAN_BOXING
 
 #define UINT8_COUNT (UINT8_MAX + 1)
 
