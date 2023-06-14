@@ -14,7 +14,7 @@ clean:
 	rm $(TARGET)
 
 test: $(TARGET)
-	for t in test/*.vp; do $(RUN) ./$(TARGET) "$$t"; done
+	for t in test/core/*.vp; do $(RUN) ./$(TARGET) "$$t"; done
 
 help:
 	@echo

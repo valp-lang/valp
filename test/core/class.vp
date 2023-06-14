@@ -1,0 +1,24 @@
+// CLASS WITH METHOD
+class Foo {
+  def foo(){}
+}
+
+var f = Foo();
+f.foo();
+
+// CLASS WITH INHERITED METHOD
+class Bar < Foo {
+}
+
+var b = Bar();
+b.foo();
+
+// CLASS WITH INITIALIZER
+class Baz {
+  def init(arg1) {
+    self.arg1 = arg1;
+  }
+}
+
+var baz = Baz("arg1");
+baz.arg1;

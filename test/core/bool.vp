@@ -1,0 +1,15 @@
+// COMPARE BOOLS
+print true == true;
+print false == false;
+print false == true;
+print true == false;
+
+// COMPARE BOOL AND OTHER TYPES
+print true == 1;
+print true == "true";
+print false != 0;
+print false != "false";
+
+// NOT OPERATOR
+print !true;
+print !false;

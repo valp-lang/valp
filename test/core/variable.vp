@@ -1,0 +1,8 @@
+var x = "x";
+
+{
+  var x = "in block";
+  print x; // expect: "in block"
+}
+
+print x; // expect: "x"

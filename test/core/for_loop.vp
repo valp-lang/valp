@@ -1,0 +1,12 @@
+// For loop with initializer
+for (var x = 0; x <= 10; x = x + 1) {
+}
+
+// For loop without initializer
+var z = 0;
+for (z = 0; z <= 10; z = z + 1) {
+}
+
+// For loop without brackets
+for z = 0; z <= 10; z = z + 1 {
+}
