@@ -307,7 +307,7 @@ static valp_interpret_result run() {
       }
       case OP_SET_LOCAL: {
         uint8_t slot = READ_BYTE();
-       frame->slots[slot] = peek(0);
+        frame->slots[slot] = peek(0);
         break;
       }
       case OP_GET_GLOBAL: {
@@ -524,6 +524,11 @@ static valp_interpret_result run() {
       case OP_METHOD: {
         define_method(READ_STRING());
         break;
+      }
+      case OP_DUP: { // bruhh xDDD
+        valp_value b = pop();
+        push(b);
+        push(b);
       }
     }
   }

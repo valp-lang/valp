@@ -112,8 +112,20 @@ static valp_token_type check_keyword(int start, int len, const char *rest, valp_
 static valp_token_type identifier_type() {
   switch (scanner.start[0]) {
     case 'a': return check_keyword(1, 2, "nd", TOKEN_AND);
-    case 'c': return check_keyword(1, 4, "lass", TOKEN_CLASS);
-    case 'd': return check_keyword(1, 2, "ef", TOKEN_DEF);
+    case 'c':
+      if (scanner.current - scanner.start > 1) {
+        switch (scanner.start[1]) {
+          case 'l': return check_keyword(2, 3, "ass", TOKEN_CLASS);
+          case 'a': return check_keyword(2, 2, "se", TOKEN_CASE);
+        }
+      }
+      break;
+    case 'd':
+      if (scanner.current - scanner.start > 3) {
+        return check_keyword(1, 6, "efault", TOKEN_DEFAULT);
+      } else {
+        return check_keyword(1, 2, "ef", TOKEN_DEF);
+      }
     case 'e': return check_keyword(1, 3, "lse", TOKEN_ELSE);
     case 'f':
       if (scanner.current - scanner.start > 1) {
@@ -133,7 +145,8 @@ static valp_token_type identifier_type() {
       if (scanner.current - scanner.start > 1) {
         switch (scanner.start[1]) {
           case 'u': return check_keyword(2, 3, "per", TOKEN_SUPER);
-          case 'e': return check_keyword(2, 3, "lf", TOKEN_SELF);
+          case 'e': return check_keyword(2, 2, "lf", TOKEN_SELF);
+          case 'w': return check_keyword(2, 4, "itch", TOKEN_SWITCH);
         }
       }
       break;
