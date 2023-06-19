@@ -41,7 +41,8 @@ typedef enum {
   OP_RETURN,
   OP_CLASS,
   OP_INHERIT,
-  OP_METHOD
+  OP_METHOD,
+  OP_DUP,
 } valp_op_code;
 
 typedef struct {

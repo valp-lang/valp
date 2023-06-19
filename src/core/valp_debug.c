@@ -112,6 +112,7 @@ int disassemble_instruction(valp_bytecode *bytecode, int offset) {
     case OP_CLASS:          return constant_instruction("OP_CLASS", bytecode, offset);
     case OP_INHERIT:        return simple_instruction("OP_INHERIT", offset);
     case OP_METHOD:         return constant_instruction("OP_METHOD", bytecode, offset);
+    case OP_DUP:            return simple_instruction("OP_DUP", offset);
     default:
       printf("Unknown opcode %d\n", instruction);
       return offset + 1;

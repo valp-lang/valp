@@ -50,6 +50,9 @@ typedef enum {
   TOKEN_VAR,
   TOKEN_WHILE,
   TOKEN_DEF,
+  TOKEN_SWITCH,
+  TOKEN_CASE,
+  TOKEN_DEFAULT,
 
   // Other
   TOKEN_ERROR,

@@ -864,6 +864,43 @@ static void if_statement() {
   patch_jump(else_jump);
 }
 
+static void switch_case() {
+  emit_byte(OP_DUP);
+  expression();
+  consume(TOKEN_COLON, "Expect ':' after case expression.");
+  
+  emit_byte(OP_EQUAL);
+  int then_jump = emit_jump(OP_JUMP_IF_FALSE);
+  emit_byte(OP_POP);
+  
+  statement();
+  
+  int else_jump = emit_jump(OP_JUMP);
+
+  patch_jump(then_jump);
+  emit_byte(OP_POP);
+
+  patch_jump(else_jump);
+}
+
+static void switch_statement() {
+  if (check(TOKEN_LEFT_PAREN)) {
+    consume(TOKEN_LEFT_PAREN, "Expected '(' after 'switch'.");
+    expression();
+    consume(TOKEN_RIGHT_PAREN, "Expected ')' after condition.");
+  } else {
+    expression();
+  }
+
+  consume(TOKEN_LEFT_BRACE, "Expected '{'.");
+
+  while(match(TOKEN_CASE)) {
+    switch_case();
+  }
+  
+  consume(TOKEN_RIGHT_BRACE, "Expected '}'.");
+}
+
 static void print_statement() {
   expression();
   consume(TOKEN_SEMICOLON, "Expect ';' after value.");
@@ -961,6 +998,8 @@ static void statement() {
     end_scope();
   } else if (match(TOKEN_QUESTION_MARK)) {
     ternarty_statement();
+  } else if (match(TOKEN_SWITCH)) {
+    switch_statement();
   } else {
     expression_statement();
   }

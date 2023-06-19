@@ -1,0 +1,13 @@
+var x = 10;
+
+switch x {
+  case 11: {
+    print "no ten";
+  }
+  case 10: {
+    print "ten";
+  }
+  case 12: {
+    print "not ten";
+  }
+}
