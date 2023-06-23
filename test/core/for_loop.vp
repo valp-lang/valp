@@ -7,6 +7,12 @@ var z = 0;
 for (z = 0; z <= 10; z = z + 1) {
 }
 
-// For loop without brackets
-for z = 0; z <= 10; z = z + 1 {
+// // For loop without brackets
+// for z = 0; z <= 10; z = z + 1 {
+// }
+
+// For loop with next statement
+for z = 0; z <= 2; z = z + 1 {
+  if z == 1 { next; }
+  print z; // Should print '0' and '2' 
 }

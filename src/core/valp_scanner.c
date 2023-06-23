@@ -137,7 +137,14 @@ static valp_token_type identifier_type() {
       }
       break;
     case 'i': return check_keyword(1, 1, "f", TOKEN_IF);
-    case 'n': return check_keyword(1, 2, "il", TOKEN_NIL);
+    case 'n': 
+    if (scanner.current - scanner.start > 1) {
+        switch (scanner.start[1]) {
+          case 'i': return check_keyword(2, 1, "l", TOKEN_NIL);
+          case 'e': return check_keyword(2, 2, "xt", TOKEN_NEXT);
+        }
+      }
+      break;
     case 'o': return check_keyword(1, 1, "r", TOKEN_OR);
     case 'p': return check_keyword(1, 4, "rint", TOKEN_PRINT);
     case 'r': return check_keyword(1, 5, "eturn", TOKEN_RETURN);
