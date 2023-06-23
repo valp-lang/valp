@@ -58,10 +58,20 @@ typedef enum {
   TYPE_SCRIPT
 } valp_function_type;
 
+typedef struct valp_loop_s {
+  int start;
+  int exit;
+  int scope_depth;
+  struct valp_loop_s *enclosing;
+} valp_loop;
+
 typedef struct valp_compiler {
   struct valp_compiler *enclosing;
   valp_function *function;
   valp_function_type type;
+
+  // Loop being currently executed, NULL if there are none
+  valp_loop* loop;
 
   valp_local locals[UINT8_COUNT];
   int local_count;
@@ -210,6 +220,8 @@ static void init_compiler(valp_compiler *compiler, valp_function_type type) {
   compiler->local_count = 0;
   compiler->scope_depth = 0;
   compiler->function = new_function();
+  compiler->loop = NULL;
+
   current = compiler;
 
   if (type != TYPE_SCRIPT) {
@@ -647,6 +659,42 @@ static void block() {
   consume(TOKEN_RIGHT_BRACE, "Expect '}' after block.");
 }
 
+static void start_loop(valp_loop *loop) {
+  loop->start = current_bytecode()->count;
+  loop->enclosing = current->loop;
+  current->loop = loop;
+}
+
+static void end_loop(valp_loop *loop) {
+  current->loop = current->loop->enclosing;
+}
+
+static void discard_locals() {
+  int local = current->local_count - 1;
+  while (local >= 0 && current->locals[local].depth >= current->loop->scope_depth) {
+    if (current->locals[local].is_captured) {
+      emit_byte(OP_CLOSE_UPVALUE);
+    } else {
+      emit_byte(OP_POP);
+    }
+
+    local--;
+  }
+}
+
+static void next_statement() {
+  if (current->loop == NULL) {
+    error("Can't 'next' outside of a loop.");
+    return;
+  }
+
+  consume(TOKEN_SEMICOLON, "Expect ';' after next.");
+  // Discard locals
+  discard_locals();
+
+  emit_loop(current->loop->start);
+}
+
 static void function(valp_function_type type) {
   valp_compiler compiler;
   init_compiler(&compiler, type);
@@ -790,15 +838,16 @@ static void for_statement() {
     expression_statement();
   }
 
-  int loop_start = current_bytecode()->count;
+  valp_loop loop;
+  start_loop(&loop);
+  current->loop->exit = -1;
 
-  int exit_jump = -1;
   if (!match(TOKEN_SEMICOLON)) {
     expression();
     consume(TOKEN_SEMICOLON, "Expect ';' after loop condition.");
 
     // Jump out of the loop if the condition is false.
-    exit_jump = emit_jump(OP_JUMP_IF_FALSE);
+    current->loop->exit = emit_jump(OP_JUMP_IF_FALSE);
     emit_byte(OP_POP); // Condition.
   }
 
@@ -811,20 +860,22 @@ static void for_statement() {
 
     if (params) { consume(TOKEN_RIGHT_PAREN, "Expect ')' after for clauses."); }
 
-    emit_loop(loop_start);
-    loop_start = increment_start;
+    emit_loop(loop.start);
+    current->loop->start = increment_start;
+
     patch_jump(body_jump);
   }
 
   statement();
 
-  emit_loop(loop_start);
+  emit_loop(loop.start);
 
-  if (exit_jump != -1) {
-    patch_jump(exit_jump);
-    emit_byte(OP_POP); // Condition.
+  if (current->loop->exit != -1) {
+    patch_jump(current->loop->exit);
+    emit_byte(OP_POP);
   }
 
+  end_loop(&loop);
   end_scope();
 }
 
@@ -922,7 +973,8 @@ static void return_statement() {
 }
 
 static void while_statement() {
-  int loop_start = current_bytecode()->count;
+  valp_loop loop;
+  start_loop(&loop);
 
   if (check(TOKEN_LEFT_PAREN)) {
     consume(TOKEN_LEFT_PAREN, "Expect '(' after 'while'.");
@@ -932,15 +984,15 @@ static void while_statement() {
     expression();
   }
 
-  int exit_jump = emit_jump(OP_JUMP_IF_FALSE);
+  current->loop->exit = emit_jump(OP_JUMP_IF_FALSE);
 
   emit_byte(OP_POP);
   statement();
 
-  emit_loop(loop_start);
-
-  patch_jump(exit_jump);
+  emit_loop(loop.start);
+  patch_jump(current->loop->exit);
   emit_byte(OP_POP);
+  end_loop(&loop);
 }
 
 static void synchronize() {
@@ -982,7 +1034,9 @@ static void declaration() {
 }
 
 static void statement() {
-  if (match(TOKEN_PRINT)) {
+  if (match(TOKEN_NEXT)) {
+    next_statement();
+  } else if (match(TOKEN_PRINT)) {
     print_statement();
   } else if (match(TOKEN_FOR)) {
     for_statement();

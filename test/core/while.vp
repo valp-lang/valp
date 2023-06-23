@@ -9,3 +9,11 @@ var x = 0;
 while x != 1 {
   x = x + 1;
 }
+
+// WITH NEXT
+var x = 0;
+while x != 3 {
+  x = x + 1;
+  if x == 2 { next; }
+  print x; // Should print '1' and '3'
+}
