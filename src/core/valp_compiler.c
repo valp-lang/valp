@@ -44,11 +44,13 @@ typedef struct {
   valp_token name;
   int depth;
   bool is_captured;
+  bool constant;
 } valp_local;
 
 typedef struct {
   uint8_t index;
   bool is_local;
+  bool constant;
 } valp_upvalue;
 
 typedef enum {
@@ -404,7 +406,7 @@ static int resolve_local(valp_compiler *compiler, valp_token *name) {
   return -1;
 }
 
-static int add_upvalue(valp_compiler *compiler, uint8_t index, bool is_local) {
+static int add_upvalue(valp_compiler *compiler, uint8_t index, bool is_local, bool constant) {
   int upvalue_count = compiler->function->upvalue_count;
 
   for (int i = 0; i < upvalue_count; i++) {
@@ -421,8 +423,28 @@ static int add_upvalue(valp_compiler *compiler, uint8_t index, bool is_local) {
 
   compiler->upvalues[upvalue_count].is_local = is_local;
   compiler->upvalues[upvalue_count].index = index;
+  compiler->upvalues[upvalue_count].constant = constant;
 
   return compiler->function->upvalue_count++;
+}
+
+static void check_constant(uint8_t set_op, int arg) {
+  if (set_op == OP_SET_LOCAL) {
+    if (current->locals[arg].constant) {
+      error("Cannot assign to a constant.");
+    }
+  } else if (set_op == OP_SET_UPVALUE) {
+    valp_upvalue upvalue = current->upvalues[arg];
+
+    if (upvalue.constant) {
+      error("Cannot assign to a constant.");
+    }
+  } else if (set_op == OP_SET_GLOBAL) {
+    valp_value _;
+    if (hash_get(&vm.constants, AS_STRING(current_bytecode()->constants.values[arg]), &_)) {
+      error("Cannot assign to a constant.");
+    }
+  }
 }
 
 static int resolve_upvalue(valp_compiler *compiler, valp_token *name) {
@@ -431,12 +453,12 @@ static int resolve_upvalue(valp_compiler *compiler, valp_token *name) {
   int local = resolve_local(compiler->enclosing, name);
   if (local != -1) {
     compiler->enclosing->locals[local].is_captured = true;
-    return add_upvalue(compiler, (uint8_t)local, true);
+    return add_upvalue(compiler, (uint8_t)local, true, compiler->enclosing->locals[local].constant);
   }
 
   int upvalue = resolve_upvalue(compiler->enclosing, name);
   if (upvalue != -1) {
-    return add_upvalue(compiler, (uint8_t)upvalue, false);
+    return add_upvalue(compiler, (uint8_t)upvalue, false, compiler->enclosing->upvalues[upvalue].constant);
   }
 
   return -1;
@@ -458,6 +480,7 @@ static void named_variable(valp_token name, bool can_assign) {
   }
   
   if (can_assign && match(TOKEN_EQUAL)) {
+    check_constant(set_op, arg);
     expression();
     emit_bytes(set_op, (uint8_t)arg);
   } else {
@@ -562,6 +585,7 @@ valp_parse_rule rules[] = {
     [TOKEN_WHILE] =         {NULL,     NULL,   PREC_NONE},
     [TOKEN_ERROR] =         {NULL,     NULL,   PREC_NONE},
     [TOKEN_EOF] =           {NULL,     NULL,   PREC_NONE},
+    [TOKEN_CONST] =         {NULL,     NULL,   PREC_NONE}
 };
 
 static void parse_precedence(valp_precedence precedence) {
@@ -599,6 +623,7 @@ static void add_local(valp_token name) {
   valp_local *local = &current->locals[current->local_count++];
   local->name = name;
   local->depth = -1;
+  local->constant = false;
   local->is_captured = false;
 }
 
@@ -629,14 +654,18 @@ static uint8_t parse_variable(const char *errorMessage) {
   return identifier_constant(&parser.previous);
 }
 
-static void mark_initialized() {
-  if (current->scope_depth == 0) return;
+static void mark_initialized(bool constant) {
   current->locals[current->local_count - 1].depth = current->scope_depth;
+  current->locals[current->local_count - 1].constant = constant;
 }
 
-static void define_variable(uint8_t global) {
-  if (current->scope_depth > 0) {
-    mark_initialized();
+static void define_variable(uint8_t global, bool constant) {
+  if (current->scope_depth == 0) {
+    if (constant) {
+      hash_set(&vm.constants, AS_STRING(current_bytecode()->constants.values[global]), NIL_VAL);
+    }
+  } else {
+    mark_initialized(constant);
     return;
   }
 
@@ -711,7 +740,7 @@ static void function(valp_function_type type) {
       }
 
       uint8_t param_constant = parse_variable("Expect parametr name.");
-      define_variable(param_constant);
+      define_variable(param_constant, false);
     } while (match(TOKEN_COMMA));
   }
 
@@ -754,7 +783,7 @@ static void class_declaration() {
   declare_variable();
 
   emit_bytes(OP_CLASS, name_constant);
-  define_variable(name_constant);
+  define_variable(name_constant, false);
 
   valp_class_compiler class_compiler;
   class_compiler.has_superclass = false;
@@ -770,7 +799,7 @@ static void class_declaration() {
 
     begin_scope();
     add_local(synthetic_token("super"));
-    define_variable(0);
+    define_variable(0, false);
 
     named_variable(class_name, false);
     emit_byte(OP_INHERIT);
@@ -794,12 +823,12 @@ static void class_declaration() {
 
 static void fun_declaration() {
   uint8_t global = parse_variable("Expect function name.");
-  mark_initialized();
+  mark_initialized(false);
   function(TYPE_FUNCTION);
-  define_variable(global);
+  define_variable(global, false);
 }
 
-static void var_declaration() {
+static void var_declaration(bool constant) {
   uint8_t global = parse_variable("Expect variable name.");
 
   if (match(TOKEN_EQUAL)) {
@@ -810,7 +839,7 @@ static void var_declaration() {
 
   consume(TOKEN_SEMICOLON, "Expect ';' after variable declaration.");
 
-  define_variable(global);
+  define_variable(global, constant);
 }
 
 static void expression_statement() {
@@ -833,7 +862,7 @@ static void for_statement() {
   if (match(TOKEN_SEMICOLON)) {
     // on initializer.
   } else if (match(TOKEN_VAR)) {
-    var_declaration();
+    var_declaration(false);
   } else {
     expression_statement();
   }
@@ -1025,7 +1054,9 @@ static void declaration() {
   } else if (match(TOKEN_FUN)) {
     fun_declaration();
   } else if (match(TOKEN_VAR)) {
-    var_declaration();
+    var_declaration(false);
+  } else if (match(TOKEN_CONST)) {
+    var_declaration(true);
   } else {
     statement();
   }

@@ -1,7 +1,6 @@
 #ifndef valp_vm_h
 #define valp_vm_h
 
-//#include "valp_bytecode.h"
 #include "valp_object.h"
 #include "valp_value.h"
 #include "valp_hash.h"
@@ -22,6 +21,7 @@ typedef struct {
   valp_value stack[STACK_MAX];
   valp_value* stack_top;
   valp_hash globals;
+  valp_hash constants;
   valp_hash strings;
   valp_string *init_string;
   valp_obj_upvalue *open_upvalues;
