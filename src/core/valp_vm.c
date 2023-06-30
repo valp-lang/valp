@@ -66,6 +66,7 @@ void init_vm() {
   vm.gray_stack = NULL;
 
   init_hash(&vm.globals);
+  init_hash(&vm.constants);
   init_hash(&vm.strings);
 
   vm.init_string = NULL;
@@ -76,6 +77,7 @@ void init_vm() {
 
 void free_vm() {
   free_hash(&vm.globals);
+  free_hash(&vm.constants);
   free_hash(&vm.strings);
   vm.init_string = NULL;
   free_objects();

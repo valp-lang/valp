@@ -117,6 +117,7 @@ static valp_token_type identifier_type() {
         switch (scanner.start[1]) {
           case 'l': return check_keyword(2, 3, "ass", TOKEN_CLASS);
           case 'a': return check_keyword(2, 2, "se", TOKEN_CASE);
+          case 'o': return check_keyword(2, 3, "nst", TOKEN_CONST);
         }
       }
       break;
