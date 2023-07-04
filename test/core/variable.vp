@@ -9,3 +9,4 @@ print x; // expect: "x"
 
 // assign plus
 x += 1;
+x -= 1;
