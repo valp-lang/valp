@@ -20,5 +20,8 @@ class Baz {
   }
 }
 
-var baz = Baz("arg1");
+var baz = Baz(12);
 baz.arg1;
+baz.arg1 += 1;
+
+print(baz.arg1);

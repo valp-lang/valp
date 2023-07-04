@@ -1,4 +1,4 @@
-var x = "x";
+var x = 0;
 
 {
   var x = "in block";
@@ -6,3 +6,6 @@ var x = "x";
 }
 
 print x; // expect: "x"
+
+// assign plus
+x += 1;
