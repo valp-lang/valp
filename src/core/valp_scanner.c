@@ -217,7 +217,7 @@ valp_token scan_token() {
     case '.': return make_token(TOKEN_DOT);
     case '-': return make_token(match('=') ? TOKEN_MINUS_EQUAL : TOKEN_MINUS);
     case '+': return make_token(match('=') ? TOKEN_PLUS_EQUAL : TOKEN_PLUS);
-    case '/': return make_token(TOKEN_SLASH);
+    case '/': return make_token(match('=') ? TOKEN_SLASH_EQUAL : TOKEN_SLASH);
     case '*': return make_token(TOKEN_STAR);
     case '?': return make_token(TOKEN_QUESTION_MARK);
     case ':': return make_token(TOKEN_COLON);

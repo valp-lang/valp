@@ -24,5 +24,6 @@ var baz = Baz(12);
 baz.arg1;
 baz.arg1 += 1;
 baz.arg1 -= 1;
+baz.arg1 /= 1;
 
 print(baz.arg1);
