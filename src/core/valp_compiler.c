@@ -350,6 +350,11 @@ static void dot(bool can_assign) {
     expression();
     emit_byte(OP_SUBTRACT);
     emit_bytes(OP_SET_PROPERTY, name);
+  } else if (can_assign && match(TOKEN_STAR_EQUAL)) {
+    emit_bytes(OP_GET_PROPERTY_NO_POP, name);
+    expression();
+    emit_byte(OP_MULTIPLY);
+    emit_bytes(OP_SET_PROPERTY, name);
   } else if (match(TOKEN_LEFT_PAREN)) {
     uint8_t arg_count = argument_list();
     emit_bytes(OP_INVOKE, name);
@@ -516,6 +521,12 @@ static void named_variable(valp_token name, bool can_assign) {
     expression();
     emit_byte(OP_DIVIDE);
     emit_bytes(set_op, (uint8_t)arg);
+  } else if (can_assign && match(TOKEN_STAR_EQUAL)) {
+    check_constant(set_op, arg);
+    named_variable(name, false);
+    expression();
+    emit_byte(OP_DIVIDE);
+    emit_bytes(set_op, (uint8_t)arg);
   } else {
     emit_bytes(get_op, (uint8_t)arg);
   }
@@ -621,7 +632,8 @@ valp_parse_rule rules[] = {
     [TOKEN_CONST] =         {NULL,     NULL,   PREC_NONE},
     [TOKEN_PLUS_EQUAL] =    {NULL,     NULL,   PREC_NONE},
     [TOKEN_MINUS_EQUAL] =   {NULL,     NULL,   PREC_NONE},
-    [TOKEN_SLASH_EQUAL] =   {NULL,     NULL,   PREC_NONE}
+    [TOKEN_SLASH_EQUAL] =   {NULL,     NULL,   PREC_NONE},
+    [TOKEN_STAR_EQUAL] =    {NULL,     NULL,   PREC_NONE}
 };
 
 static void parse_precedence(valp_precedence precedence) {
