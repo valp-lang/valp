@@ -369,6 +369,27 @@ static valp_interpret_result run() {
 
         break;
       }
+      case OP_GET_PROPERTY_NO_POP: {
+        if (!IS_INSTANCE(peek(0))) {
+          runtime_error("Only instances have properties.");
+          return INTERPRET_RUNTIME_ERROR;
+        }
+
+        valp_instance *instance = AS_INSTANCE(peek(0));
+        valp_string *name = READ_STRING();
+
+        valp_value value;
+        if (hash_get(&instance->fields, name, &value)) {
+          push(value);
+          break;
+        }
+
+        if (!bind_method(instance->klass, name)) {
+          return INTERPRET_RUNTIME_ERROR;
+        }
+
+        break;
+      }
       case OP_SET_PROPERTY: {
         if (!IS_INSTANCE(peek(1))) {
           runtime_error("Only instances have fields.");
