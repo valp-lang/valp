@@ -25,5 +25,6 @@ baz.arg1;
 baz.arg1 += 1;
 baz.arg1 -= 1;
 baz.arg1 /= 1;
+baz.arg1 *= 2;
 
 print(baz.arg1);
