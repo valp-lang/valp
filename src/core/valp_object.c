@@ -134,6 +134,13 @@ valp_obj_upvalue *new_upvalue(valp_value *slot) {
   return upvalue;
 }
 
+valp_array *new_array() {
+  valp_array *array = ALLOCATE_OBJ(valp_array, OBJ_ARRAY);
+  init_valp_value_array(&array->values);
+
+  return array;
+}
+
 static void print_function(valp_function *function) {
   if (function->name == NULL) {
     printf("<script>");
@@ -141,6 +148,24 @@ static void print_function(valp_function *function) {
   }
 
   printf("<fn %s>", function->name->chars);
+}
+
+static void print_array(valp_array *arr) {
+  printf("[");
+
+  for (int i = 0; i < arr->values.count; ++i) {
+    valp_value element = arr->values.values[i];
+
+    if (IS_STRING(element)) {
+      printf("%s", AS_STRING(element)->chars);
+    } else {
+      print_value(element);
+    }
+
+    if (i != arr->values.count - 1) { printf(", "); }
+  }
+
+  printf("]");
 }
 
 void print_object(valp_value value) {
@@ -153,5 +178,6 @@ void print_object(valp_value value) {
     case OBJ_NATIVE:       printf("<native fn>"); break;
     case OBJ_STRING:       printf("%s", AS_CSTRING(value)); break;
     case OBJ_UPVALUE:      printf("upvalue"); break;
+    case OBJ_ARRAY:        print_array(AS_ARRAY(value)); break;
   }
 }

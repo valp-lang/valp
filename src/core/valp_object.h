@@ -15,6 +15,7 @@
 #define IS_INSTANCE(value)     is_obj_type(value, OBJ_INSTANCE)
 #define IS_NATIVE(value)       is_obj_type(value, OBJ_NATIVE)
 #define IS_STRING(value)       is_obj_type(value, OBJ_STRING)
+#define IS_ARRAY(value)        is_obj_type(value, OBJ_ARRAY)
 
 #define AS_BOUND_METHOD(value) ((valp_bound_method*)AS_OBJ(value))
 #define AS_CLASS(value)        ((valp_class*)AS_OBJ(value))
@@ -24,6 +25,7 @@
 #define AS_NATIVE(value)       (((valp_obj_native*)AS_OBJ(value))->function)
 #define AS_STRING(value)       ((valp_string*)AS_OBJ(value))
 #define AS_CSTRING(value)      (((valp_string*)AS_OBJ(value))->chars)
+#define AS_ARRAY(value)        ((valp_array*)AS_OBJ(value))
 
 typedef enum {
   OBJ_BOUND_METHOD,
@@ -33,7 +35,8 @@ typedef enum {
   OBJ_INSTANCE,
   OBJ_NATIVE,
   OBJ_STRING,
-  OBJ_UPVALUE
+  OBJ_UPVALUE,
+  OBJ_ARRAY,
 } valp_obj_type;
 
 struct valp_obj {
@@ -63,6 +66,11 @@ struct valp_string {
   char *chars;
   uint32_t hash;
 };
+
+typedef struct {
+  valp_obj obj;
+  valp_value_array values;
+} valp_array;
 
 typedef struct valp_obj_upvalue {
   valp_obj obj;
@@ -105,6 +113,7 @@ valp_obj_native *new_native(valp_native_fn function);
 valp_string *take_string(char *chars, int length);
 valp_string *copy_string(const char *chars, int length);
 valp_obj_upvalue *new_upvalue(valp_value *slot);
+valp_array *new_array();
 void print_object(valp_value value);
 
 static inline bool is_obj_type(valp_value value, valp_obj_type type) {

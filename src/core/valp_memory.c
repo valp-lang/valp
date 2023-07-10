@@ -82,6 +82,12 @@ static void free_object(valp_obj *object) {
       FREE(valp_obj_upvalue, object);
       break;
     }
+    case OBJ_ARRAY: {
+      valp_array *arr = (valp_array*)object;
+      free_valp_value_array(&arr->values);
+      FREE(valp_array, arr);
+      break;
+    }
   }
 }
 
@@ -160,6 +166,11 @@ static void blacken_object(valp_obj *object) {
     }
     case OBJ_UPVALUE: {
       mark_value(((valp_obj_upvalue*)object)->closed);
+      break;
+    }
+    case OBJ_ARRAY: {
+      valp_array *arr = (valp_array*)object;
+      mark_array(&arr->values);
       break;
     }
     case OBJ_NATIVE:
