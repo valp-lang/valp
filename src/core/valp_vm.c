@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
-#include <time.h>
 
 #include "../include/valp.h"
 #include "valp_vm.h"
@@ -9,12 +8,9 @@
 #include "valp_compiler.h"
 #include "valp_object.h"
 #include "valp_memory.h"
+#include "valp_native.h"
 
 VM vm;
-
-static valp_value clock_native(int arg_count, valp_value *args) {
-  return NUMBER_VAL((double)clock() / CLOCKS_PER_SEC);
-}
 
 static void reset_stack() {
   vm.stack_top = vm.stack;
@@ -47,14 +43,6 @@ static void runtime_error(const char *format, ...) {
   reset_stack();
 }
 
-static void define_native(const char* name, valp_native_fn function) {
-  push(OBJ_VAL(copy_string(name, (int)strlen(name))));
-  push(OBJ_VAL(new_native(function)));
-  hash_set(&vm.globals, AS_STRING(vm.stack[0]), vm.stack[1]);
-  pop();
-  pop();
-}
-
 void init_vm() {
   reset_stack();
   vm.objects = NULL;
@@ -72,7 +60,7 @@ void init_vm() {
   vm.init_string = NULL;
   vm.init_string = copy_string("init", 4);
 
-  define_native("clock", clock_native);
+  define_natives();
 }
 
 void free_vm() {
