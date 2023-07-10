@@ -1,0 +1,7 @@
+var numbers = [1, 2, 3];
+var strings = ["foo", "bar", "baz"];
+var nils = [nil, nil, nil];
+
+print(numbers == [1, 2, 3]);
+print(strings == ["foo", "bar", "baz"]);
+print(nils == [nil, nil, nil]);

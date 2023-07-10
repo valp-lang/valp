@@ -212,6 +212,8 @@ valp_token scan_token() {
     case ')': return make_token(TOKEN_RIGHT_PAREN);
     case '{': return make_token(TOKEN_LEFT_BRACE);
     case '}': return make_token(TOKEN_RIGHT_BRACE);
+    case '[': return make_token(TOKEN_LEFT_BRACKET);
+    case ']': return make_token(TOKEN_RIGHT_BRACKET);
     case ';': return make_token(TOKEN_SEMICOLON);
     case ',': return make_token(TOKEN_COMMA);
     case '.': return make_token(TOKEN_DOT);

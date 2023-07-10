@@ -552,6 +552,20 @@ static valp_interpret_result run() {
         valp_value b = pop();
         push(b);
         push(b);
+        break;
+      }
+      case OP_NEW_ARRAY: {
+        int size = READ_BYTE();
+        valp_array *arr = new_array();
+        push(OBJ_VAL(arr));
+
+        for (int i = size; i > 0; --i) {
+          write_valp_value_array(&arr->values, peek(i));
+        }
+
+        vm.stack_top -= size + 1;
+        push(OBJ_VAL(arr));
+        break;
       }
     }
   }

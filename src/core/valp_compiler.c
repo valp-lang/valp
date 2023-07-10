@@ -378,6 +378,20 @@ static void grouping(bool can_assign) {
   consume(TOKEN_RIGHT_PAREN, "Expect ')' after expression.");
 }
 
+static void array(bool can_assign) {
+  int count = 0;
+
+  if (!check(TOKEN_RIGHT_BRACKET)) {
+    do {
+      expression();
+      count++;
+    } while(match(TOKEN_COMMA));
+  }
+
+  emit_bytes(OP_NEW_ARRAY, count);
+  consume(TOKEN_RIGHT_BRACKET, "Expect ']' at the end of Array.");
+}
+
 static void number(bool can_assign) {
   double value = strtod(parser.previous.start, NULL);
   emit_constant(NUMBER_VAL(value));
@@ -593,6 +607,8 @@ valp_parse_rule rules[] = {
     [TOKEN_RIGHT_PAREN] =   {NULL,     NULL,   PREC_NONE},
     [TOKEN_LEFT_BRACE] =    {NULL,     NULL,   PREC_NONE},
     [TOKEN_RIGHT_BRACE] =   {NULL,     NULL,   PREC_NONE},
+    [TOKEN_LEFT_BRACKET] =  {array,    NULL,   PREC_NONE},
+    [TOKEN_RIGHT_BRACKET] = {NULL,     NULL,   PREC_NONE},
     [TOKEN_COMMA] =         {NULL,     NULL,   PREC_NONE},
     [TOKEN_DOT] =           {NULL,     dot,    PREC_CALL},
     [TOKEN_MINUS] =         {unary,    binary, PREC_TERM},
