@@ -1,13 +1,17 @@
-var x = 10;
-
-switch x {
-  case 11: {
-    print "no ten";
-  }
-  case 10: {
-    print "ten";
-  }
-  case 12: {
-    print "not ten";
+fun test_switch(x) {
+  switch x {
+    case 11: {
+      return "no ten";
+    }
+    case 10: {
+      return "ten";
+    }
+    case 12: {
+      return "not ten";
+    }
   }
 }
+
+assert_equal(test_switch(12), "not ten");
+assert_equal(test_switch(11), "no ten");
+assert_equal(test_switch(10), "ten");

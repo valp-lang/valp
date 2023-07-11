@@ -348,7 +348,7 @@ static void dot(bool can_assign) {
   } else if (can_assign && match(TOKEN_SLASH_EQUAL)) {
     emit_bytes(OP_GET_PROPERTY_NO_POP, name);
     expression();
-    emit_byte(OP_SUBTRACT);
+    emit_byte(OP_DIVIDE);
     emit_bytes(OP_SET_PROPERTY, name);
   } else if (can_assign && match(TOKEN_STAR_EQUAL)) {
     emit_bytes(OP_GET_PROPERTY_NO_POP, name);
@@ -539,7 +539,7 @@ static void named_variable(valp_token name, bool can_assign) {
     check_constant(set_op, arg);
     named_variable(name, false);
     expression();
-    emit_byte(OP_DIVIDE);
+    emit_byte(OP_MULTIPLY);
     emit_bytes(set_op, (uint8_t)arg);
   } else {
     emit_bytes(get_op, (uint8_t)arg);
