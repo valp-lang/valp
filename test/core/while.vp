@@ -3,17 +3,24 @@ var x = 0;
 while (x != 1) {
   x = x + 1;
 }
+assert_equal(x, 1);
 
 // WITHOUT BRACKETS
 var x = 0;
 while x != 1 {
   x = x + 1;
 }
+assert_equal(x, 1);
 
 // WITH NEXT
 var x = 0;
+var res = 0;
+
 while x != 3 {
-  x = x + 1;
+  x += 1;
   if x == 2 { next; }
-  print x; // Should print '1' and '3'
+  // print res;
+  res += 5;
 }
+
+assert_equal(res, 10);

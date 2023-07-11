@@ -2,13 +2,20 @@ var x = 0;
 
 {
   var x = "in block";
-  print x; // expect: "in block"
+  assert_equal(x, "in block");
 }
 
-print x; // expect: "x"
+assert_equal(x, 0);
 
 // assign plus
-x += 1;
+x += 5;
+assert_equal(x, 5);
+
 x -= 1;
-x /= 1;
-x *= 2;
+assert_equal(x, 4);
+
+x /= 2;
+assert_equal(x, 2);
+
+x *= 3;
+assert_equal(x, 6);

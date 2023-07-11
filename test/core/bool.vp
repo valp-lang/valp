@@ -1,15 +1,15 @@
 // COMPARE BOOLS
-print true == true;
-print false == false;
-print false == true;
-print true == false;
+assert_equal(true, true == true);
+assert_equal(true, false == false);
+assert_equal(false, false == true);
+assert_equal(false, true == false);
 
 // COMPARE BOOL AND OTHER TYPES
-print true == 1;
-print true == "true";
-print false != 0;
-print false != "false";
+assert_equal(false, true == 1);
+assert_equal(false, true == "true");
+assert_equal(false, false == 0);
+assert_equal(false, false == "false");
 
 // NOT OPERATOR
-print !true;
-print !false;
+assert_equal(false, !true);
+assert_equal(true, !false);

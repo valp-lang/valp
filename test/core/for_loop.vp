@@ -1,18 +1,24 @@
 // For loop with initializer
+var res = 0;
 for (var x = 0; x <= 10; x = x + 1) {
+  res += 1;
 }
+assert_equal(res, 11);
 
 // For loop without initializer
 var z = 0;
-for (z = 0; z <= 10; z = z + 1) {
+for (z = 0; z <= 10; z += 1) {
 }
+assert_equal(res, 11);
 
 // // For loop without brackets
-// for z = 0; z <= 10; z = z + 1 {
-// }
+for z = 0; z <= 10; z += 1 {
+}
 
 // For loop with next statement
-for z = 0; z <= 2; z = z + 1 {
+var res = 0;
+for z = 0; z <= 2; z += 1 {
   if z == 1 { next; }
-  print z; // Should print '0' and '2' 
+  res += 1;
 }
+assert_equal(res, 2);

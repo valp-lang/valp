@@ -1,7 +1,8 @@
 var numbers = [1, 2, 3];
-var strings = ["foo", "bar", "baz"];
-var nils = [nil, nil, nil];
+assert_equal(numbers, [1, 2, 3]);
 
-print(numbers == [1, 2, 3]);
-print(strings == ["foo", "bar", "baz"]);
-print(nils == [nil, nil, nil]);
+var strings = ["foo", "bar", "baz"];
+assert_equal(strings, ["foo", "bar", "baz"]);
+
+var nils = [nil, nil, nil];
+assert_equal(nils, [nil, nil, nil]);
