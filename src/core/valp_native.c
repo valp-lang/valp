@@ -1,7 +1,7 @@
 #include <time.h>
 
-#include "valp_native.h"
 #include "../include/valp.h"
+#include "valp_native.h"
 #include "valp_object.h"
 #include "valp_vm.h"
 
@@ -23,6 +23,20 @@ static valp_value assert_native(int arg_count, valp_value *args) {
   return NIL_VAL;
 }
 
+static valp_value assert_equal_native(int arg_count, valp_value *args) {
+  if (arg_count != 2) {
+    runtime_error("assert_equal() expected 2 arguments, got %d.", arg_count);
+    return UNDEFINED_VAL;
+  }
+
+  if (!values_equal(args[0], args[1])) {
+    runtime_error("Assertion failed.");
+    return UNDEFINED_VAL;
+  }
+
+  return NIL_VAL;
+}
+
 static void define_native(const char* name, valp_native_fn function) {
   push(OBJ_VAL(copy_string(name, (int)strlen(name))));
   push(OBJ_VAL(new_native(function)));
@@ -34,9 +48,9 @@ static void define_native(const char* name, valp_native_fn function) {
 }
 
 void define_natives() {
-  char *natives[] = { "clock", "assert" };
+  char *natives[] = { "clock", "assert", "assert_equal" };
 
-  valp_native_fn natives_f[] = { clock_native, assert_native };
+  valp_native_fn natives_f[] = { clock_native, assert_native, assert_equal_native };
 
   for (int i = 0; i < sizeof(natives) / sizeof(natives[0]); ++i) {
     define_native(natives[i], natives_f[i]);
