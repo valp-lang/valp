@@ -9,6 +9,20 @@ static valp_value clock_native(int arg_count, valp_value *args) {
   return NUMBER_VAL((double)clock() / CLOCKS_PER_SEC);
 }
 
+static valp_value assert_native(int arg_count, valp_value *args) {
+  if (arg_count != 1) {
+    runtime_error("assert() expected 1 argument, got %d.", arg_count);
+    return UNDEFINED_VAL;
+  }
+
+  if (is_falsey(args[0])) {
+    runtime_error("Assertion failed.");
+    return UNDEFINED_VAL;
+  }
+
+  return NIL_VAL;
+}
+
 static void define_native(const char* name, valp_native_fn function) {
   push(OBJ_VAL(copy_string(name, (int)strlen(name))));
   push(OBJ_VAL(new_native(function)));
@@ -20,9 +34,9 @@ static void define_native(const char* name, valp_native_fn function) {
 }
 
 void define_natives() {
-  char *natives[] = { "clock" };
+  char *natives[] = { "clock", "assert" };
 
-  valp_native_fn natives_f[] = { clock_native };
+  valp_native_fn natives_f[] = { clock_native, assert_native };
 
   for (int i = 0; i < sizeof(natives) / sizeof(natives[0]); ++i) {
     define_native(natives[i], natives_f[i]);

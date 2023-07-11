@@ -53,7 +53,8 @@ typedef enum {
   VAL_BOOL,
   VAL_NIL,
   VAL_NUMBER,
-  VAL_OBJ
+  VAL_OBJ,
+  VAL_UNDEFINED,
 } valp_value_type;
 
 typedef struct {
@@ -69,6 +70,7 @@ typedef struct {
 #define IS_NIL(value)         ((value).type == VAL_NIL)
 #define IS_NUMBER(value)      ((value).type == VAL_NUMBER)
 #define IS_OBJ(value)         ((value).type == VAL_OBJ)
+#define IS_UNDEFINED(value)       ((value).type == VAL_UNDEFINED)
 
 #define AS_BOOL(value)        ((value).as.boolean)
 #define AS_NUMBER(value)      ((value).as.number)
@@ -78,6 +80,7 @@ typedef struct {
 #define NIL_VAL               ((valp_value){VAL_NIL, {.number = 0}})
 #define NUMBER_VAL(value)     ((valp_value){VAL_NUMBER, {.number = value}})
 #define OBJ_VAL(object)       ((valp_value){VAL_OBJ, {.valp_obj = (valp_obj*)object}})
+#define UNDEFINED_VAL             ((valp_value){VAL_UNDEFINED, { 0 }})
 
 #endif
 
