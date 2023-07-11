@@ -48,5 +48,7 @@ void free_vm();
 valp_interpret_result interpret(const char *source);
 void push(valp_value value);
 valp_value pop();
+void runtime_error(const char *format, ...);
+bool is_falsey(valp_value value);
 
 #endif

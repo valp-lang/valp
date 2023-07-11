@@ -44,9 +44,10 @@ void print_value(valp_value value) {
     case VAL_BOOL:
       printf(AS_BOOL(value) ? "true" : "false");
       break;
-    case VAL_NIL:    printf("nil"); break;
-    case VAL_NUMBER: printf("%g", AS_NUMBER(value)); break;
-    case VAL_OBJ:    print_object(value); break;
+    case VAL_NIL:       printf("nil"); break;
+    case VAL_NUMBER:    printf("%g", AS_NUMBER(value)); break;
+    case VAL_OBJ:       print_object(value); break;
+    case VAL_UNDEFINED: printf("undefined"); break;
   }
 #endif
 }

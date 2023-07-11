@@ -18,7 +18,7 @@ static void reset_stack() {
   vm.open_upvalues = NULL;
 }
 
-static void runtime_error(const char *format, ...) {
+void runtime_error(const char *format, ...) {
   va_list args;
   va_start(args, format);
   vfprintf(stderr, format, args);
@@ -131,6 +131,9 @@ static bool call_value(valp_value callee, int arg_count) {
       case OBJ_NATIVE: {
         valp_native_fn native = AS_NATIVE(callee);
         valp_value result = native(arg_count, vm.stack_top - arg_count);
+
+        if (IS_UNDEFINED(result)) { return false; }
+
         vm.stack_top -= arg_count + 1;
         push(result);
         return true;
@@ -229,7 +232,7 @@ static void define_method(valp_string *name) {
   pop();
 }
 
-static bool is_falsey(valp_value value) {
+bool is_falsey(valp_value value) {
   return IS_NIL(value) || (IS_BOOL(value) && !AS_BOOL(value));
 }
 
