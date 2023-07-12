@@ -450,6 +450,19 @@ static valp_interpret_result run() {
         if (is_falsey(peek(0))) frame->ip += offset;
         break;
       }
+      case OP_JUMP_COMPARE: {
+        uint16_t offset = READ_SHORT();
+        valp_value a = pop();
+        valp_value b = peek(0);
+
+        if (values_equal(a, b)) {
+          pop();
+        } else {
+          frame->ip += offset;
+        }
+
+        break;
+      }
       case OP_LOOP: {
         uint16_t offset = READ_SHORT();
         frame->ip -= offset;

@@ -88,6 +88,7 @@ int disassemble_instruction(valp_bytecode *bytecode, int offset) {
     case OP_PRINT:                    return simple_instruction("OP_PRINT", offset);
     case OP_JUMP:                     return jump_instruction("OP_JUMP", 1, bytecode, offset);
     case OP_JUMP_IF_FALSE:            return jump_instruction("OP_JUMP_IF_FALSE", 1, bytecode, offset);
+    case OP_JUMP_COMPARE:             return jump_instruction("OP_JUMP_COMPARE", 1, bytecode, offset);
     case OP_LOOP:                     return jump_instruction("OP_LOOP", -1, bytecode, offset);
     case OP_CALL:                     return byte_instruction("OP_CALL", bytecode, offset);
     case OP_INVOKE:                   return invoke_instruction("OP_INVOKE", bytecode, offset);

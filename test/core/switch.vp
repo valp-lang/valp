@@ -9,9 +9,16 @@ fun test_switch(x) {
     case 12: {
       return "not ten";
     }
+    case 10: {
+      return "invalid ten";
+    }
+    default: {
+      return "default";
+    }
   }
 }
 
 assert_equal(test_switch(12), "not ten");
 assert_equal(test_switch(11), "no ten");
 assert_equal(test_switch(10), "ten");
+assert_equal(test_switch(123), "default");

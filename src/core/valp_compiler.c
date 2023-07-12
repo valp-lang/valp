@@ -649,7 +649,8 @@ valp_parse_rule rules[] = {
     [TOKEN_PLUS_EQUAL] =    {NULL,     NULL,   PREC_NONE},
     [TOKEN_MINUS_EQUAL] =   {NULL,     NULL,   PREC_NONE},
     [TOKEN_SLASH_EQUAL] =   {NULL,     NULL,   PREC_NONE},
-    [TOKEN_STAR_EQUAL] =    {NULL,     NULL,   PREC_NONE}
+    [TOKEN_STAR_EQUAL] =    {NULL,     NULL,   PREC_NONE},
+    [TOKEN_SWITCH] =        {NULL,     NULL,   PREC_NONE}
 };
 
 static void parse_precedence(valp_precedence precedence) {
@@ -1008,26 +1009,10 @@ static void if_statement() {
   patch_jump(else_jump);
 }
 
-static void switch_case() {
-  emit_byte(OP_DUP);
-  expression();
-  consume(TOKEN_COLON, "Expect ':' after case expression.");
-  
-  emit_byte(OP_EQUAL);
-  int then_jump = emit_jump(OP_JUMP_IF_FALSE);
-  emit_byte(OP_POP);
-  
-  statement();
-  
-  int else_jump = emit_jump(OP_JUMP);
-
-  patch_jump(then_jump);
-  emit_byte(OP_POP);
-
-  patch_jump(else_jump);
-}
-
 static void switch_statement() {
+  int cases[256];
+  int case_counter = 0;
+
   if (check(TOKEN_LEFT_PAREN)) {
     consume(TOKEN_LEFT_PAREN, "Expected '(' after 'switch'.");
     expression();
@@ -1037,12 +1022,38 @@ static void switch_statement() {
   }
 
   consume(TOKEN_LEFT_BRACE, "Expected '{'.");
+  if (!check(TOKEN_CASE)) {
+    error_at_current("At least one 'case' statement required.");
+  }
 
   while(match(TOKEN_CASE)) {
-    switch_case();
+    expression();
+    consume(TOKEN_COLON, "Expect ':' after case expression.");
+
+    int then_jump = emit_jump(OP_JUMP_COMPARE);
+
+    statement();
+    cases[case_counter++] = emit_jump(OP_JUMP);
+
+    patch_jump(then_jump);
+
+    if (case_counter > 255) {
+      error_at_current("Maximum amount of cases: 255.");
+    }
+  }
+
+  emit_byte(OP_POP); // POP EXPRESSION
+
+  if (match(TOKEN_DEFAULT)) {
+    consume(TOKEN_COLON, "Expect ':' after 'default'.");
+    statement();
   }
   
-  consume(TOKEN_RIGHT_BRACE, "Expected '}'.");
+  consume(TOKEN_RIGHT_BRACE, "Expected '}' at the end of switch.");
+
+  for (int i = 0; i < case_counter; ++i) {
+    patch_jump(cases[i]);
+  }
 }
 
 static void print_statement() {
