@@ -60,6 +60,7 @@ typedef enum {
   TOKEN_CASE,
   TOKEN_DEFAULT,
   TOKEN_NEXT,
+  TOKEN_BREAK,
   TOKEN_CONST,
 
   // Other

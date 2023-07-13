@@ -63,6 +63,7 @@ typedef enum {
 typedef struct valp_loop_s {
   int start;
   int exit;
+  int body;
   int scope_depth;
   struct valp_loop_s *enclosing;
 } valp_loop;
@@ -753,19 +754,96 @@ static void block() {
   consume(TOKEN_RIGHT_BRACE, "Expect '}' after block.");
 }
 
+static int get_arg_count(uint8_t *code, const valp_value_array constants, int ip) {
+  switch (code[ip]) {
+        case OP_NIL:
+        case OP_TRUE:
+        case OP_FALSE:
+        case OP_POP:
+        case OP_EQUAL:
+        case OP_GREATER:
+        case OP_LESS:
+        case OP_ADD:
+        case OP_SUBTRACT:
+        case OP_MULTIPLY:
+        case OP_DIVIDE:
+        case OP_NOT:
+        case OP_NEGATE:
+        case OP_CLOSE_UPVALUE:
+        case OP_RETURN:
+        case OP_BREAK:
+        case OP_DUP:
+        case OP_PRINT:
+          return 0;
+
+        case OP_CONSTANT:
+        case OP_GET_LOCAL:
+        case OP_SET_LOCAL:
+        case OP_GET_GLOBAL:
+        case OP_SET_GLOBAL:
+        case OP_DEFINE_GLOBAL:
+        case OP_GET_UPVALUE:
+        case OP_SET_UPVALUE:
+        case OP_GET_PROPERTY:
+        case OP_GET_PROPERTY_NO_POP:
+        case OP_SET_PROPERTY:
+        case OP_GET_SUPER:
+        case OP_METHOD:
+        case OP_NEW_ARRAY:
+          return 1;
+
+        case OP_JUMP:
+        case OP_JUMP_COMPARE:
+        case OP_JUMP_IF_FALSE:
+        case OP_LOOP:
+        case OP_CLASS:
+        case OP_CALL:
+          return 2;
+
+        case OP_INVOKE:
+        case OP_SUPER_INVOKE:
+          return 3;
+
+        case OP_CLOSURE: {
+          int constant = code[ip + 1];
+          valp_function* loadedFn = AS_FUNCTION(constants.values[constant]);
+          return 1 + (loadedFn->upvalue_count * 2);
+        }
+    }
+    // OP_INHERIT - idk where
+    return 0;
+}
+
 static void start_loop(valp_loop *loop) {
   loop->start = current_bytecode()->count;
   loop->enclosing = current->loop;
+  loop->scope_depth = current->scope_depth;
   current->loop = loop;
 }
 
 static void end_loop(valp_loop *loop) {
+  if (current->loop->exit != -1) {
+    patch_jump(current->loop->exit);
+    emit_byte(OP_POP);
+  }
+
+  int i = current->loop->body;
+  while (i < current->function->bytecode.count) {
+    if (current->function->bytecode.code[i] == OP_BREAK) {
+      current->function->bytecode.code[i] = OP_JUMP;
+      patch_jump(i + 1);
+      i += 3;
+    } else {
+      i += 1 + get_arg_count(current->function->bytecode.code, current->function->bytecode.constants, i);
+    }
+  }
+
   current->loop = current->loop->enclosing;
 }
 
 static void discard_locals() {
   int local = current->local_count - 1;
-  while (local >= 0 && current->locals[local].depth >= current->loop->scope_depth) {
+  while (local >= 0 && current->locals[local].depth > current->loop->scope_depth) {
     if (current->locals[local].is_captured) {
       emit_byte(OP_CLOSE_UPVALUE);
     } else {
@@ -783,10 +861,21 @@ static void next_statement() {
   }
 
   consume(TOKEN_SEMICOLON, "Expect ';' after next.");
-  // Discard locals
   discard_locals();
 
   emit_loop(current->loop->start);
+}
+
+static void break_statement() {
+  if (current->loop == NULL) {
+    error("Can't 'break' outside of a loop.");
+    return;
+  }
+
+  consume(TOKEN_SEMICOLON, "Expect ';' after break.");
+  discard_locals();
+
+  emit_byte(OP_BREAK);
 }
 
 static void function(valp_function_type type) {
@@ -960,16 +1049,12 @@ static void for_statement() {
     patch_jump(body_jump);
   }
 
+  current->loop->body = current->function->bytecode.count;
   statement();
 
   emit_loop(loop.start);
-
-  if (current->loop->exit != -1) {
-    patch_jump(current->loop->exit);
-    emit_byte(OP_POP);
-  }
-
   end_loop(&loop);
+
   end_scope();
 }
 
@@ -1091,11 +1176,10 @@ static void while_statement() {
   current->loop->exit = emit_jump(OP_JUMP_IF_FALSE);
 
   emit_byte(OP_POP);
+  current->loop->body = current->function->bytecode.count;
   statement();
 
   emit_loop(loop.start);
-  patch_jump(current->loop->exit);
-  emit_byte(OP_POP);
   end_loop(&loop);
 }
 
@@ -1142,6 +1226,8 @@ static void declaration() {
 static void statement() {
   if (match(TOKEN_NEXT)) {
     next_statement();
+  } else if (match(TOKEN_BREAK)) {
+    break_statement();
   } else if (match(TOKEN_PRINT)) {
     print_statement();
   } else if (match(TOKEN_FOR)) {

@@ -558,6 +558,9 @@ static valp_interpret_result run() {
         push(b);
         break;
       }
+      case OP_BREAK: {
+        break;
+      }
       case OP_NEW_ARRAY: {
         int size = READ_BYTE();
         valp_array *arr = new_array();
