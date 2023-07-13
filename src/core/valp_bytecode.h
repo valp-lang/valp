@@ -46,6 +46,7 @@ typedef enum {
   OP_METHOD,
   OP_DUP,
   OP_NEW_ARRAY,
+  OP_BREAK,
 } valp_op_code;
 
 typedef struct {
