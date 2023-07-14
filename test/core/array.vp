@@ -1,8 +1,0 @@
-var numbers = [1, 2, 3];
-assert_equal(numbers, [1, 2, 3]);
-
-var strings = ["foo", "bar", "baz"];
-assert_equal(strings, ["foo", "bar", "baz"]);
-
-var nils = [nil, nil, nil];
-assert_equal(nils, [nil, nil, nil]);

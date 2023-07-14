@@ -9,6 +9,7 @@
 #include "valp_object.h"
 #include "valp_memory.h"
 #include "valp_native.h"
+#include "types/array.h"
 
 VM vm;
 
@@ -56,11 +57,13 @@ void init_vm() {
   init_hash(&vm.globals);
   init_hash(&vm.constants);
   init_hash(&vm.strings);
+  init_hash(&vm.array_methods);
 
   vm.init_string = NULL;
   vm.init_string = copy_string("init", 4);
 
   define_natives();
+  define_array_methods();
 }
 
 void free_vm() {
@@ -101,6 +104,18 @@ static bool call(valp_obj_closure *closure, int arg_count) {
   frame->ip = closure->function->bytecode.code;
 
   frame->slots = vm.stack_top - arg_count - 1;
+  return true;
+}
+
+static bool call_native_method(valp_value method, int arg_count) {
+  valp_native_fn native = AS_NATIVE(method);
+  valp_value result = native(arg_count, vm.stack_top - arg_count - 1);
+
+  if (IS_UNDEFINED(result)) { return false; }
+
+  vm.stack_top -= arg_count + 1;
+  push(result);
+
   return true;
 }
 
@@ -159,6 +174,17 @@ static bool invoke_from_class(valp_class *klass, valp_string *name, int arg_coun
 
 static bool invoke(valp_string *name, int arg_count) {
   valp_value receiver = peek(arg_count);
+
+  if (IS_ARRAY(receiver)) {
+    valp_value value;
+
+    if (hash_get(&vm.array_methods, name, &value)) {
+      return call_native_method(value, arg_count);
+    }
+
+    runtime_error("Undefined method '%s' for Array.", name->chars);
+    return false;
+  }
 
   if (!IS_INSTANCE(receiver)) {
     runtime_error("Only instances have methods.");
