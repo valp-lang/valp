@@ -1,0 +1,62 @@
+var numbers = [1, 2, 3];
+assert_equal(numbers, [1, 2, 3]);
+
+var strings = ["foo", "bar"];
+assert_equal(strings, ["foo", "bar"]);
+
+var nils = [nil, nil, nil, nil];
+assert_equal(nils, [nil, nil, nil, nil]);
+
+// LENGTH
+assert_equal(3, numbers.len());
+assert_equal(2, strings.len());
+assert_equal(4, nils.len());
+
+// PUSH
+
+numbers.push(9);
+assert_equal(numbers, [1, 2, 3, 9]);
+
+strings.push(9);
+assert_equal(strings, ["foo", "bar", 9]);
+
+nils.push(9);
+assert_equal(nils, [nil, nil, nil, nil, 9]);
+
+// POP
+
+numbers.pop();
+assert_equal(numbers, [1, 2, 3]);
+
+strings.pop();
+assert_equal(strings, ["foo", "bar"]);
+
+nils.pop();
+assert_equal(nils, [nil, nil, nil, nil]);
+
+// INSERT
+
+numbers.insert("asd");
+assert_equal(numbers, ["asd", 1, 2, 3]);
+
+strings.insert(nil);
+assert_equal(strings, [nil, "foo", "bar"]);
+
+nils.insert("foo");
+assert_equal(nils, ["foo", nil, nil, nil, nil]);
+
+// DROP
+
+numbers.drop();
+assert_equal(numbers, [1, 2, 3]);
+
+strings.drop();
+assert_equal(strings, ["foo", "bar"]);
+
+nils.drop();
+assert_equal(nils, [nil, nil, nil, nil]);
+
+// IS_EMPTY
+
+assert_equal(false, numbers.is_empty());
+assert([].is_empty());

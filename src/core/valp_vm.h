@@ -29,6 +29,8 @@ typedef struct {
   size_t bytes_allocated;
   size_t next_gc;
 
+  valp_hash array_methods;
+
   valp_obj *objects;
   int gray_count;
   int gray_capacity;

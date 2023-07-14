@@ -22,6 +22,21 @@ void write_valp_value_array(valp_value_array *array, valp_value value) {
   array->count++;
 }
 
+void prepend_valp_value_array(valp_value_array *array, valp_value value) {
+  if (array->capacity < array->count + 1) {
+    int old_capacity = array->capacity;
+    array->capacity = GROW_CAPACITY(old_capacity);
+    array->values = GROW_ARRAY(valp_value, array->values, old_capacity, array->capacity);
+  }
+
+  for (int i = array->count - 1; i >= 0; --i) {
+    array->values[i + 1] = array->values[i]; 
+  }
+
+  array->values[0] = value;
+  array->count++;
+}
+
 void free_valp_value_array(valp_value_array *array) {
   FREE_ARRAY(valp_value, array->values, array->capacity);
   init_valp_value_array(array);

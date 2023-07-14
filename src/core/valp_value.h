@@ -80,7 +80,7 @@ typedef struct {
 #define NIL_VAL               ((valp_value){VAL_NIL, {.number = 0}})
 #define NUMBER_VAL(value)     ((valp_value){VAL_NUMBER, {.number = value}})
 #define OBJ_VAL(object)       ((valp_value){VAL_OBJ, {.valp_obj = (valp_obj*)object}})
-#define UNDEFINED_VAL             ((valp_value){VAL_UNDEFINED, { 0 }})
+#define UNDEFINED_VAL         ((valp_value){VAL_UNDEFINED, { 0 }})
 
 #endif
 
@@ -93,6 +93,7 @@ typedef struct {
 bool values_equal(valp_value a, valp_value b);
 void init_valp_value_array(valp_value_array *array);
 void write_valp_value_array(valp_value_array *array, valp_value value);
+void prepend_valp_value_array(valp_value_array *array, valp_value value);
 void free_valp_value_array(valp_value_array *array);
 void print_value(valp_value value);
 
