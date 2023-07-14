@@ -81,7 +81,7 @@ static valp_value array_drop(int arg_count, valp_value *args) {
 
 static valp_value array_empty(int arg_count, valp_value *args) {
   if (arg_count != 0) { 
-    runtime_error("empty?() takes 1 argument, given %d", arg_count);
+    runtime_error("is_empty() takes 1 argument, given %d", arg_count);
     return UNDEFINED_VAL;
   }
 
