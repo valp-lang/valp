@@ -60,3 +60,15 @@ assert_equal(nils, [nil, nil, nil, nil]);
 
 assert_equal(false, numbers.is_empty());
 assert([].is_empty());
+
+// GETTING ELEMENT [x]
+
+assert_equal(numbers[0], 1);
+assert_equal(numbers[1], 2);
+assert_equal(numbers[2], 3);
+
+assert_equal(strings[0], "foo");
+assert_equal(strings[1], "bar");
+
+assert_equal(nils[0], nil);
+assert_equal(nils[3], nil);
