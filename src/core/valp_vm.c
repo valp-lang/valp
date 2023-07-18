@@ -600,6 +600,31 @@ static valp_interpret_result run() {
         push(OBJ_VAL(arr));
         break;
       }
+      case OP_SLICE: {
+        if (!IS_NUMBER(peek(0))) {
+          runtime_error("Argument must been a number.");
+          return INTERPRET_RUNTIME_ERROR;
+        }
+
+        int idx = AS_NUMBER(pop());
+
+        if (!IS_ARRAY(peek(0))) {
+          runtime_error("Caller must been an array.");
+          return INTERPRET_RUNTIME_ERROR;
+        }
+
+        valp_array *array = AS_ARRAY(pop());
+
+        if (idx < 0 || idx > array->values.count - 1) {
+          runtime_error("Index out of bound.");
+          return INTERPRET_RUNTIME_ERROR;
+        }
+
+        valp_value *elements = array->values.values;
+
+        push(elements[idx]);
+        break;
+      }
     }
   }
 

@@ -29,6 +29,7 @@ typedef enum {
   PREC_FACTOR,      // * /
   PREC_UNARY,       // ! -
   PREC_CALL,        // . ()
+  PREC_REF,         // ref[1]
   PREC_PRIMARY
 } valp_precedence;
 
@@ -393,6 +394,16 @@ static void array(bool can_assign) {
   consume(TOKEN_RIGHT_BRACKET, "Expect ']' at the end of Array.");
 }
 
+static void slice(bool can_assign) {
+  if (check(TOKEN_RIGHT_BRACKET)) {
+    error("At least one argument needed.");
+  }
+
+  expression();
+  emit_byte(OP_SLICE);
+  consume(TOKEN_RIGHT_BRACKET, "Expect ']' at end of the slice.");
+}
+
 static void number(bool can_assign) {
   double value = strtod(parser.previous.start, NULL);
   emit_constant(NUMBER_VAL(value));
@@ -608,7 +619,7 @@ valp_parse_rule rules[] = {
     [TOKEN_RIGHT_PAREN] =   {NULL,     NULL,   PREC_NONE},
     [TOKEN_LEFT_BRACE] =    {NULL,     NULL,   PREC_NONE},
     [TOKEN_RIGHT_BRACE] =   {NULL,     NULL,   PREC_NONE},
-    [TOKEN_LEFT_BRACKET] =  {array,    NULL,   PREC_NONE},
+    [TOKEN_LEFT_BRACKET] =  {array,    slice,  PREC_REF},
     [TOKEN_RIGHT_BRACKET] = {NULL,     NULL,   PREC_NONE},
     [TOKEN_COMMA] =         {NULL,     NULL,   PREC_NONE},
     [TOKEN_DOT] =           {NULL,     dot,    PREC_CALL},
