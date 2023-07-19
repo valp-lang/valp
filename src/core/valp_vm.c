@@ -9,7 +9,9 @@
 #include "valp_object.h"
 #include "valp_memory.h"
 #include "valp_native.h"
+
 #include "types/array.h"
+#include "types/string.h"
 
 VM vm;
 
@@ -58,12 +60,14 @@ void init_vm() {
   init_hash(&vm.constants);
   init_hash(&vm.strings);
   init_hash(&vm.array_methods);
+  init_hash(&vm.string_methods);
 
   vm.init_string = NULL;
   vm.init_string = copy_string("init", 4);
 
   define_natives();
   define_array_methods();
+  define_string_methods();
 }
 
 void free_vm() {
@@ -183,6 +187,15 @@ static bool invoke(valp_string *name, int arg_count) {
     }
 
     runtime_error("Undefined method '%s' for Array.", name->chars);
+    return false;
+  } else if (IS_STRING(receiver)) {
+    valp_value value;
+
+    if (hash_get(&vm.string_methods, name, &value)) {
+      return call_native_method(value, arg_count);
+    }
+
+    runtime_error("Undefined method '%s' for String.", name->chars);
     return false;
   }
 

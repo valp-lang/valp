@@ -30,6 +30,7 @@ typedef struct {
   size_t next_gc;
 
   valp_hash array_methods;
+  valp_hash string_methods;
 
   valp_obj *objects;
   int gray_count;
