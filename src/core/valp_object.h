@@ -67,10 +67,10 @@ struct valp_string {
   uint32_t hash;
 };
 
-typedef struct {
+struct valp_array{
   valp_obj obj;
   valp_value_array values;
-} valp_array;
+};
 
 typedef struct valp_obj_upvalue {
   valp_obj obj;
