@@ -7,6 +7,7 @@
 
 typedef struct valp_obj valp_obj;
 typedef struct valp_string valp_string;
+typedef struct valp_array valp_array;
 
 #ifdef NAN_BOXING
 
