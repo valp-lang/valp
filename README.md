@@ -32,13 +32,13 @@ print("Hello, world!")
 // Everything after '//' is treated as an comment.
 
 class Foo {
-	init(bar) {
-		self.bar = bar;
-	}
+  init(bar) {
+    self.bar = bar;
+  }
 
-	def baz(baz) {
-		print(self.bar + baz);
-	}
+  def baz(baz) {
+    print(self.bar + baz);
+  }
 }
 
 var foo = Foo("Hello, ")
