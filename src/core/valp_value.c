@@ -82,12 +82,21 @@ bool array_equal(valp_value a, valp_value b) {
   return true;
 }
 
+bool string_equal(valp_value a, valp_value b) {
+  char *str = AS_CSTRING(a);
+  char *str2 = AS_CSTRING(b);
+  int result = strcmp(str, str2);
+
+  return result == 0 ? true : false;
+}
+
 bool objects_equal(valp_value a, valp_value b) {
   if (IS_OBJ(a) && IS_OBJ(b)) {
     if (AS_OBJ(a)->type != AS_OBJ(b)->type) { return false; }
 
     switch (AS_OBJ(a)->type) {
       case OBJ_ARRAY: return array_equal(a,b);
+      case OBJ_STRING: return string_equal(a, b);
       default: break;
     }
   }
