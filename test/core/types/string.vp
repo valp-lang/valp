@@ -1,0 +1,6 @@
+var s = "st.ri.ng";
+
+assert_equal("gn.ir.ts", s.reverse());
+assert_equal("gn,ir,ts", s.replace(".", ","));
+assert_equal(8, s.len());
+assert_equal(["gn", "ir", "ts"], s.split(","));
